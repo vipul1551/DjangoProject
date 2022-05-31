@@ -1,0 +1,167 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+{% block extrahead %}
+<!-- {{ block.super }} -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Render our form -->
+
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+  <script>
+  $( function() {
+    $( "#tabs" ).tabs();
+    $( "#lantabs" ).tabs();
+    $( "#tabsUpdate" ).tabs();
+    $( "#lantabsUpdate" ).tabs();
+  } );
+  </script>
+</head>
+<body>
+
+{% if label == "add" %}  
+  <form method="POST">
+  
+    <div id="tabs">
+      <ul>  
+        <li><a href="#page">Page</a></li>
+        <li><a href="#lantabs">Translation</a></li>
+      </ul>
+      
+      <div id="lantabs">
+        <ul> 
+          {% for i in language %}
+            <li>
+              <a href="#{{i.code}}">{{i.code}}</a>
+            </li>
+          {% endfor %}
+          <br><br>
+
+          <div id="{{i.code}}">
+          {% for i in language %}
+            <div id="{{i.code}}">
+              <table>
+                  <td>Title:</td>
+                  <td><input type="text" name="{{i.code}}title" maxlength="100" required id="{{i.code}}title"></td>
+                  <tr></tr>
+                  
+                  <td>Content:</td>
+                  <td><textarea class="tinymce" cols="40" id="{{i.code}}content" name="{{i.code}}content" rows="10" required></textarea>
+                  <input type="hidden" id="{{i.code}}language" name="{{i.code}}language" value="{{i.code}}"/>
+                  </td>
+                  <tr></tr>
+              </table>
+            </div>
+          {% endfor %}
+          </div>
+        </ul>
+      </div>
+
+      <div id="page">
+        <p>
+          <label for="id_slug">Slug:</label>
+          <input type="text" name="slug" maxlength="50" required id="id_slug">
+        </p>
+
+        <p>
+          <label for="id_status">Status:</label>
+          <select name="status" id="id_status">
+            <option value="enabled" selected>Enabled</option>  
+            <option value="disabled">Disabled</option>  
+          </select>
+        </p>  
+
+        <p>
+          <label for="id_sortOrder">SortOrder:</label>
+          <input type="number" name="sortOrder" value="0" required id="id_sortOrder">
+        </p>
+      </div> 
+    </div>
+    {% csrf_token %}
+    <input type="submit" value="Save">
+  </form>
+ 
+{% endif %}
+
+
+{% if label == "update" %}
+  {% for p in page %}   
+    <form method="POST">
+        
+      <div id="tabsUpdate">
+        <ul>  
+          <li><a href="#page">Page</a></li>
+          <li><a href="#lantabsUpdate">Translation</a></li>
+        </ul>
+          
+        <div id="lantabsUpdate">
+          <ul>
+            {% for i in language %}
+                <li><a href="#{{i.code}}">{{i.code}}</a></li>
+            {% endfor %}
+            <br><br>
+
+            {% for t in pageTranslation %}
+                {% for i in language %}
+                    {% if i.code == t.languageCode|stringformat:"s" %}
+                      <div id="{{i.code}}">
+                        <table>
+                          <td>Title:</td>
+                          <td><input type="text" name="{{i.code}}title" maxlength="100" required id="{{i.code}}title" value="{{t.title}}"></td>
+                          <tr></tr>
+                          
+                          <td>Content:</td>
+                          <td>
+                            <textarea class="tinymce" cols="40" name="{{i.code}}content" id="{{i.code}}content" rows="10" required>{{t.content|safe}}</textarea>
+                            <input type="hidden" id="{{i.code}}language" name="{{i.code}}language" value="{{i.code}}"/>
+                            <input type="hidden" id="{{i.code}}contentId" name="{{i.code}}contentId" value="{{t.ptId}}"/>
+                          </td>
+                          <tr></tr>
+
+                        </table>
+                      </div>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}   
+          </ul> 
+        </div>
+
+        <div id="page">
+          <p>
+            <label for="id_slug">Slug:</label>
+            <input type="text" name="slug" maxlength="50" required id="slug" value="{{p.slug}}">
+          </p>
+
+          <p>
+            <label for="status">Status:</label>
+            <select id="status" name="status" required>
+              <option value="enabled"  {% if p.status == "enabled" %} selected {% endif %}>Enabled</option>
+              <option value="disabled" {% if p.status == "disabled" %} selected {% endif %}>Disabled</option>
+            </select>
+          </p> 
+
+          <p>
+            <label for="id_sortOrder">SortOrder:</label>
+            <input type="number" name="sortOrder" required id="sortOrder" value="{{p.sortOrder}}">
+          </p>
+
+        </div> 
+
+      </div>
+      {% csrf_token %}
+      <input type="submit" value="Save">
+    </form>
+  {% endfor %}
+{% endif %}
+
+
+<!-- Render the rest of the ChangeList view -->
+<!-- {{ block.super }} -->
+{% endblock %}
+
+
