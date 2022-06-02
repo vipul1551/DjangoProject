@@ -1,8 +1,7 @@
 from email.policy import default
 from django.contrib import admin
-from .models import Page
+from .models import Page,PageTranslation
 from language.models import Language
-from pageTranslation.models import PageTranslation
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 # Register your models here.

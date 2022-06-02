@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-fpeg@x4u)@iq7hvlv$yk0uav*tebn@899(8683kr94o$=7-eip'
+SECRET_KEY = 'django-insecure-fv)+!7+t3ho9g2p8jok&dah%@v)+d3^bd!y=t!1voj&9^=rb$v'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -39,11 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'language',
     'page',
-    'pageTranslation',
     'attribute',
-    'attributeTranslation',
-    'option',
-    'optionTranslation',
     'tinymce',
 ]
 
@@ -91,7 +87,6 @@ DATABASES = {
         'PORT': '3306',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

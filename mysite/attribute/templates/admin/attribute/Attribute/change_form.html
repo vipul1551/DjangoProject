@@ -1,0 +1,283 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+{% block extrahead %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <style>
+    .ui-widget-header {
+    font-weight: normal;
+}
+    </style>
+    <script>
+        // Function for showing Tabs
+        $(function () {
+            $("#tabs").tabs();
+            $("#attribute").tabs();
+            $("#option").tabs();
+            $("#tabsUpdate").tabs();
+            $("#optionUpdate").tabs();
+        });
+
+        // Onload option hide
+        window.onload = (event) => {
+            
+            var x = $("#inputtype").val();
+            if(x == "checkbox" || x == "radiobutton" || x == "select" || x == "multiselect"){
+                $("#optionUpdate").show();
+            }
+            else{
+                $("#option").hide();
+                $("#optionUpdate").hide();
+            }
+        };
+
+        // Function for showing option tab for selected Input Type
+
+        var x = ['radiobutton','checkbox','select','multiselect']
+        $(document).ready(function(){
+            $("#inputtype").change(function(){
+                if(jQuery.inArray($("#inputtype").val(),x) != -1){
+                    $("#option").show()
+                    $("#option td input").prop('required',true);
+                    $("#optionUpdate").show()
+                    $("#optionUpdate td input").prop('required',true);
+                }
+                else{
+                    $("#option").hide()
+                    $("#option td input").prop('required',false);
+                    $("#optionUpdate").hide()
+                    $("#optionUpdate td input").prop('required',false);
+                }
+            });       
+        });
+        
+        
+
+        // Function for add and delete option
+        // var counter = $("#optionTable tr #newOption").length;
+        var counter = 1;
+        $(document).ready(function(){
+
+            // Add Option
+            $("#addOption").click(function(){
+                if(counter<10){
+                var add = `<tr id="newOption">{% for i in language %}<td><input type="text" id="{{i.code}}[${counter}][option]" name="{{i.code}}[${counter}][option]" required></td>
+                {% endfor %}
+                <td><input type="text" id="option[${counter}]customOption" name="option[${counter}]customOption" required></td>
+                <td><input type="number" id="option[${counter}]sortOrder" name="option[${counter}]sortOrder" required></td>
+                <td><input type="radio" id="option[${counter}]default" name="option[${counter}]default"></td>
+                <td class="delete"><button id="delete">-</button></td></tr>`;
+                $("#optionTable").append(add);
+                counter++;
+                }
+                else{
+                    alert('You can add 10 options only!');
+                }
+            });
+
+            // Delete Option
+            $('table').on('click','tr button',function(e){
+            // e.preventDefault();
+            if(counter>1){
+                $(this).parents('tr').remove();
+                counter--;
+            }
+            });
+
+            if(counter>1){
+                $("tr button").show();
+            }
+            else{
+                $("tr button").hide();
+            }
+        }); 
+
+    </script>
+</head>
+<body>
+{% endblock %}
+{% block content %}
+
+{% if label == "add" %}
+
+<div id="tabs">
+    <ul>  
+      <li><a href="#attribute">Attribute</a></li>
+    </ul>
+
+    <form method="POST">
+    <div id="attribute">
+        <table>
+            <tr>
+            {% for i in language %}
+            <td>Name [{{i.name}}]:</td>
+            <td><input type="text" name="{{i.code}}name" class="vTextField" maxlength="50" required id="{{i.code}}name">
+            <input type="hidden" id="{{i.code}}language" name="{{i.code}}language" value="{{i.code}}"/>
+            </td>
+            </tr>
+            {% endfor %}
+            <tr>
+            <td>Code:</td>
+            <td><input type="text" name="code" class="vTextField" maxlength="100" required id="id_code"></td></tr>
+            <tr>
+            <td>Input Type:</td>     
+            <td>
+                <select name="inputtype" required id="inputtype">
+                    <option value="" selected disabled>---------</option>
+                    <option value="textbox">TextBox</option>
+                    <option value="textarea">TextArea</option>
+                    <option value="boolean">Boolean</option>
+                    <option value="radiobutton">RadioButton</option>
+                    <option value="checkbox">CheckBox</option>
+                    <option value="select">Select</option>
+                    <option value="multiselect">MultiSelect</option>
+                </select>
+            </td></tr>
+            <tr>
+            <td>Required</td>
+                <td>
+                    <input type="checkbox" name="required" id="id_required">
+                </td></tr>
+        </table>
+        <br><br>
+        <div id="option">
+            <ul>  
+                <li><a href="#options">Option</a></li>
+                <div align="right"><button id="addOption">+</button></div>
+            </ul>
+            <div id="options">        
+                <table id="optionTable">
+                    <tr>
+                        {% for i in language %}
+                            <th>Name [{{i.name}}]</th>
+                        {% endfor %}
+                        <th>Custom Option</th>
+                        <th>Sort Order</th>
+                        <th>Default</th>
+                        <th>Delete</th>
+                    </tr>
+
+                    <tr id="newOption">
+                        {% for i in language %}
+                            <td><input type="text" id="{{i.code}}option" name="{{i.code}}option" required></td>
+                        {% endfor %}
+                        <td><input type="text" id="option[0]customOption" name="option[0]customOption" required></td>
+                        <td><input type="number" id="option[0]sortOrder" name="option[0]sortOrder" required></td>
+                        <td><input type="radio" id="option[0]default" name="option[0]default"></td>
+                        <td class="delete"><button id="delete">-</button></td>
+                    </tr>
+                    
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% csrf_token %}
+<input type="submit" value="Save">
+</form>
+
+
+
+{% endif %}
+
+
+{% if label == "update" %}
+    {% for a in attribute %}
+<div id="tabsUpdate">
+<ul>  
+    <li><a href="#attribute">Attribute</a></li>
+</ul>
+    <form method="POST">
+        <div id="attributeUpdate">
+            <table>
+                <tr>
+                {% for t in attributeTranslation %}
+                    {% for i in language %}
+                        {% if i.code == t.language|stringformat:"s" %}
+                        <td>Name [{{i.name}}]:</td>
+                        <td><input type="text" name="{{i.code}}name" class="vTextField" maxlength="50" required id="{{i.code}}name" value="{{t.name}}">
+                        <input type="hidden" id="{{i.code}}language" name="{{i.code}}language" value="{{i.code}}"/>
+                        <input type="hidden" id="{{i.code}}nameId" name="{{i.code}}nameId" value="{{t.id}}"/>
+                        </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+                <tr>
+                <td>Code:</td>
+                <td><input type="text" name="code" class="vTextField" maxlength="100" required id="id_code" value="{{a.code}}"></td></tr>
+                <tr>
+                <td>Input Type:</td>     
+                    <td>
+                        <select name="inputtype" required id="inputtype">
+                            <option value="" selected disabled>---------</option>
+                            <option value="textbox" {% if a.inputtype == "textbox" %} selected {% endif %}>TextBox</option>
+                            <option value="textarea" {% if a.inputtype == "textarea" %} selected {% endif %}>TextArea</option>
+                            <option value="boolean" {% if a.inputtype == "boolean" %} selected {% endif %}>Boolean</option>
+                            <option value="radiobutton" {% if a.inputtype == "radiobutton" %} selected {% endif %}>RadioButton</option>
+                            <option value="checkbox" {% if a.inputtype == "checkbox" %} selected {% endif %}>CheckBox</option>
+                            <option value="select" {% if a.inputtype == "select" %} selected {% endif %}>Select</option>
+                            <option value="multiselect" {% if a.inputtype == "multiselect" %} selected {% endif %}>MultiSelect</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                <td>Required</td>
+                    <td>
+                        <input type="checkbox" name="required" id="id_required" {% if a.required == True %} checked {% endif %}>
+                    </td></tr>
+            </table>
+            <br><br>
+            <div id="optionUpdate">
+                <ul>  
+                    <li><a href="#options">Option</a></li>
+                    <div align="right"><button id="addOption">+</button></div>
+                </ul>
+                <div id="options">            
+                    <table id="optionTable">
+                        <tr>
+                            {% for i in language %}
+                                <th>Name [{{i.name}}]</th>
+                            {% endfor %}
+                            <th>Custom Option</th>
+                            <th>Sort Order</th>
+                            <th>Default</th>
+                            <th>Delete</th>
+                        </tr>
+                        
+                        {% for o in option %}
+                        
+                        <tr id="newOption">
+                            {% for i in language %}                                    
+                                <td><input type="text" id="{{i.code}}option" name="{{i.code}}option" required value="{{ot.name}}"></td>
+                                <input type="hidden" id="{{i.code}}language" name="{{i.code}}language" value="{{i.code}}"/>
+                                <input type="hidden" id="{{i.code}}nameId" name="{{i.code}}nameId" value="{{t.id}}"/>
+                            {% endfor %}
+                            <td><input type="text" id="customOption" name="customOption" required value="{{o.customOption}}"></td>
+                            <td><input type="number" id="sortOrder" name="sortOrder" required value="{{o.sortOrder}}"></td>
+                            <td><input type="radio" id="default" name="default" {% if o.default == 'yes' %} checked {% endif %}></td>
+                            <td class="delete"><button id="delete">-</button></td>
+                        </tr>
+                        {% endfor %}
+                        
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    
+    {% csrf_token %}
+    <br>
+    <input type="submit" value="Save">
+    </form>
+
+    {% endfor %}
+{% endif %}
+
+</body>
+<!-- {{block.super}} -->
+{% endblock %}
